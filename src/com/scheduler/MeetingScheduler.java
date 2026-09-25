@@ -1,6 +1,7 @@
 package com.scheduler;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import com.entities.Meeting;
 import com.entities.MeetingRoom;
@@ -10,7 +11,7 @@ import com.notify.NotificationService;
 public class MeetingScheduler {
 	
 	//DB to store Meeting rooms
-	private HashMap<Integer,MeetingRoom> meetingRooms;
+	private Map<Integer,MeetingRoom> meetingRooms;
 	private NotificationService notificationService;
 	
 	public MeetingScheduler(HashMap<Integer,MeetingRoom> meetingRooms,NotificationService notificationService) {
@@ -21,8 +22,10 @@ public class MeetingScheduler {
 	public void scheduleMeet(Meeting meeting) throws Exception {
 		validateMeeting(meeting);
 		MeetingRoom meetingRoom = validateAndGetMeetingRoom(meeting);
-		checkSlotForMeeting(meeting,meetingRoom);
-		meetingRoom.addMeeting(meeting);
+		synchronized (meetingRoom) {
+			checkSlotForMeeting(meeting,meetingRoom);
+			meetingRoom.addMeeting(meeting);
+		}
 		notificationService.notifyParticipants(meeting, "Meeting is Scheduled");
 	}
 	
@@ -40,9 +43,11 @@ public class MeetingScheduler {
 		MeetingRoom oldMeetingRoom=validateAndGetMeetingRoom(old);
 		validateMeetingInMeetingRoom(old, oldMeetingRoom);
 		MeetingRoom latestMeetingRoom=validateAndGetMeetingRoom(latest);
-		checkSlotForMeeting(latest, latestMeetingRoom);
-		latestMeetingRoom.addMeeting(latest);
-		oldMeetingRoom.removeMeeting(old);
+		synchronized (MeetingRoom.class) {
+			checkSlotForMeeting(latest, latestMeetingRoom);
+			oldMeetingRoom.removeMeeting(old);
+			latestMeetingRoom.addMeeting(latest);
+		}
 		notificationService.notifyParticipants(old, "Meeting is rescheduled");
 	}
 	
@@ -63,7 +68,7 @@ public class MeetingScheduler {
 		}
 	}
 	private void validateMeeting(Meeting meeting) throws Exception{
-		if(meeting.startTime()>meeting.endTime()) {
+		if(!meeting.startTime().isBefore(meeting.endTime())) {
 			throw new SchedulerException("Invalid Meeting");
 		}
 	}

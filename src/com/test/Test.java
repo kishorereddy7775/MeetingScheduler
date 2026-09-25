@@ -1,5 +1,6 @@
 package com.test;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,14 +31,23 @@ public class Test {
 		User u2=new User(2,"Rahul");
 		User u3=new User(3,"Ravi");
 		
+		LocalDateTime t1=LocalDateTime.now();
+		LocalDateTime t2=LocalDateTime.now().plusMinutes(30);
+		LocalDateTime t3=LocalDateTime.now().plusMinutes(60);
+		LocalDateTime t4=LocalDateTime.now().plusMinutes(90);
 		
-		Meeting mt1=new Meeting(1,"Standup","Standup",1,930,1000,u1,List.of(u2,u3));
-		Meeting mt2=new Meeting(3,"Standup","Standup",1,930,1000,u2,List.of(u1,u3));
-		Meeting mt3=new Meeting(2,"Standup","Standup",4,930,1000,u2,List.of(u1,u3));
-		Meeting mt4=new Meeting(4,"Standup","Standup",1,1030,1100,u1,List.of(u2,u3));
-		Meeting mt5 =new Meeting(4,"Standup","Standup",1,1130,1100,u1,List.of(u2,u3));
-		Meeting mt6 =new Meeting(4,"Standup","Standup",2,1030,1100,u1,List.of(u2,u3));
-		Meeting mt7=new Meeting(1,"Standup","Standup",1,1130,1200,u1,List.of(u2,u3));
+		LocalDateTime t5=LocalDateTime.now().plusMinutes(120);
+		LocalDateTime t6=LocalDateTime.now().plusMinutes(150);
+		
+		
+		
+		Meeting mt1=new Meeting(1,"Standup","Standup",1,t1,t2,u1,List.of(u2,u3));
+		Meeting mt2=new Meeting(3,"Standup","Standup",1,t1,t2,u2,List.of(u1,u3));
+		Meeting mt3=new Meeting(2,"Standup","Standup",4,t1,t2,u2,List.of(u1,u3));
+		Meeting mt4=new Meeting(4,"Standup","Standup",1,t3,t4,u1,List.of(u2,u3));
+		Meeting mt5 =new Meeting(4,"Standup","Standup",1,t5,t4,u1,List.of(u2,u3));
+		Meeting mt6 =new Meeting(4,"Standup","Standup",2,t3,t4,u1,List.of(u2,u3));
+		Meeting mt7=new Meeting(1,"Standup","Standup",1,t5,t6,u1,List.of(u2,u3));
 		try {
 			scheduler.scheduleMeet(mt1);
 			scheduler.scheduleMeet(mt2);

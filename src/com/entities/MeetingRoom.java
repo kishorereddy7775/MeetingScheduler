@@ -1,6 +1,6 @@
 package com.entities;
 
-public record MeetingRoom(int meetingRoom_id, String name, Calendar calendar) {
+public record MeetingRoom(int meetingRoomId, String name, Calendar calendar) {
 
 	public boolean isMeetingAvailable(Meeting meeting) {
 		return calendar.isMeetingAvailable(meeting);
@@ -15,6 +15,6 @@ public record MeetingRoom(int meetingRoom_id, String name, Calendar calendar) {
 	}
 	
 	public boolean isSlotAvaliable(Meeting meeting) {
-		return calendar.isSlotAvaliable(meeting);
+		return calendar.isSlotAvailable(meeting);
 	}
 }

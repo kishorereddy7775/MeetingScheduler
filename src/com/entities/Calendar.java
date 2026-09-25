@@ -12,12 +12,12 @@ public record Calendar(List<Meeting> meetings) {
 		meetings.remove(meeting);
 	}
 	public boolean isMeetingAvailable(Meeting meeting) {
-		return meetings.stream().anyMatch(meet->meet.equals(meeting));
+		return meetings.stream().anyMatch(meet->meet.meetingId()==meeting.meetingId());
 	}
 	
-	public boolean isSlotAvaliable(Meeting meeting) {
+	public boolean isSlotAvailable(Meeting meeting) {
 		for(Meeting scheduled:meetings) {
-			if(!(scheduled.endTime()<meeting.startTime() || scheduled.startTime()>meeting.endTime()))
+			if(scheduled.startTime().isBefore(meeting.endTime()) && meeting.startTime().isBefore(scheduled.endTime()))
 				return false;
 		}
 		return true;
