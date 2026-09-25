@@ -1,6 +1,5 @@
 package com.scheduler;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import com.entities.Meeting;
@@ -14,7 +13,7 @@ public class MeetingScheduler {
 	private Map<Integer,MeetingRoom> meetingRooms;
 	private NotificationService notificationService;
 	
-	public MeetingScheduler(HashMap<Integer,MeetingRoom> meetingRooms,NotificationService notificationService) {
+	public MeetingScheduler(Map<Integer,MeetingRoom> meetingRooms,NotificationService notificationService) {
 		this.meetingRooms=meetingRooms;
 		this.notificationService=notificationService;
 	}
@@ -32,8 +31,10 @@ public class MeetingScheduler {
 	public void cancelMeet(Meeting meeting) throws Exception {
 		validateMeeting(meeting);
 		MeetingRoom meetingRoom = validateAndGetMeetingRoom(meeting);
-		validateMeetingInMeetingRoom(meeting,meetingRoom);
-		meetingRoom.removeMeeting(meeting);
+		synchronized (meetingRoom) {
+			validateMeetingInMeetingRoom(meeting,meetingRoom);
+			meetingRoom.removeMeeting(meeting);
+		}
 		notificationService.notifyParticipants(meeting, "Meeting is Canceled");
 	}
 	
@@ -43,10 +44,12 @@ public class MeetingScheduler {
 		MeetingRoom oldMeetingRoom=validateAndGetMeetingRoom(old);
 		validateMeetingInMeetingRoom(old, oldMeetingRoom);
 		MeetingRoom latestMeetingRoom=validateAndGetMeetingRoom(latest);
-		synchronized (MeetingRoom.class) {
-			checkSlotForMeeting(latest, latestMeetingRoom);
-			oldMeetingRoom.removeMeeting(old);
-			latestMeetingRoom.addMeeting(latest);
+		synchronized (oldMeetingRoom) {
+			synchronized (latestMeetingRoom) {
+				checkSlotForMeeting(latest, latestMeetingRoom);
+				oldMeetingRoom.removeMeeting(old);
+				latestMeetingRoom.addMeeting(latest);
+			}
 		}
 		notificationService.notifyParticipants(old, "Meeting is rescheduled");
 	}
@@ -58,7 +61,7 @@ public class MeetingScheduler {
 		return meetingRooms.get(meeting.meetingRoomId());
 	}
 	private void checkSlotForMeeting(Meeting meeting, MeetingRoom meetingRoom) throws Exception{
-		if(!meetingRoom.isSlotAvaliable(meeting)) {
+		if(!meetingRoom.isSlotAvailable(meeting)) {
 			throw new SchedulerException("Meeting room is not Available");
 		}
 	}

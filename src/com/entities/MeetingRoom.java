@@ -14,7 +14,7 @@ public record MeetingRoom(int meetingRoomId, String name, Calendar calendar) {
 		calendar.removeMeeting(meeting);
 	}
 	
-	public boolean isSlotAvaliable(Meeting meeting) {
+	public boolean isSlotAvailable(Meeting meeting) {
 		return calendar.isSlotAvailable(meeting);
 	}
 }
